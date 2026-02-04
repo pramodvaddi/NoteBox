@@ -1,10 +1,12 @@
-# Java 17 image that works on Mac (Apple Silicon)
-FROM eclipse-temurin:25-jre
-
+# ---------- BUILD STAGE ----------
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-COPY target/notebox-0.0.1-SNAPSHOT.jar app.jar
-
+# ---------- RUN STAGE ----------
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/target/*jar app.jar
 EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
